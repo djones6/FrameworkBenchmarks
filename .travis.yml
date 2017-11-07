@@ -208,6 +208,7 @@ env:
     - "TESTDIR=Scala/s-server"
     - "TESTDIR=Scala/http4s"
     - "TESTDIR=Scala/finch"
+    - "TESTDIR=Swift/kitura"
     - "TESTDIR=Swift/vapor"
     - "TESTDIR=Ur/urweb"
     - "TESTDIR=Vala/vsgi"
