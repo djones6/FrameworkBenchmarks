@@ -209,6 +209,7 @@ env:
     - "TESTDIR=Scala/http4s"
     - "TESTDIR=Scala/finch"
     - "TESTDIR=Swift/kitura"
+    - "TESTDIR=Swift/kitura-net"
     - "TESTDIR=Swift/vapor"
     - "TESTDIR=Ur/urweb"
     - "TESTDIR=Vala/vsgi"

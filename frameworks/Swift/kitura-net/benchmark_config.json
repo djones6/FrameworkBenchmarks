@@ -1,0 +1,26 @@
+{
+  "framework": "kitura-net",
+  "tests": [{
+    "default": {
+      "setup_file": "setup",
+      "json_url": "/json",
+      "db_url": "/db",
+      "query_url": "/queries?queries=",
+      "update_url": "/updates?queries=",
+      "plaintext_url": "/plaintext",
+      "port": 8080,
+      "approach": "Realistic",
+      "classification": "Micro",
+      "database": "Postgres",
+      "framework": "Kitura-Net",
+      "language": "Swift",
+      "orm": "Raw",
+      "platform": "Kitura-Net",
+      "webserver": "Kitura-Net",
+      "os": "Linux",
+      "database_os": "Linux",
+      "display_name": "Kitura-Net",
+      "notes": ""
+    }
+  }]
+}
