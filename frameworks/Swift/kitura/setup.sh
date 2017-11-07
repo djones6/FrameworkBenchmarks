@@ -17,10 +17,9 @@ eval "$(swiftenv init -)"
 swiftenv install || true
 
 # Build Kitura
-#swift build --clean=dist
-swift build --clean
+swift package clean
 swift build -c release
 
 # Execute Kitura (reads DBHOST and DBPORT environment variables)
 #export DBPORT="5432"
-.build/release/Kitura-TechEmpower &
+.build/release/TechEmpowerKuery &
