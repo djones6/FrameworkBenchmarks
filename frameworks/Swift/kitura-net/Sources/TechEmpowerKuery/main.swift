@@ -67,6 +67,7 @@ class TechEmpowerDelegate: ServerDelegate {
         // TechEmpower test 6: plaintext
         case "/plaintext":
 	    let payload = "Hello, world!"
+            response.headers["Server"] = ["Kitura"]
 	    send(response, string: payload)
             return
 
