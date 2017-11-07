@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Dependency on PostgreSQL database
+fw_depends postgresql
+
 # Install Swift dependencies
 sudo apt-get -y install clang-3.8 libicu-dev
 sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-3.8 100
@@ -17,7 +20,7 @@ eval "$(swiftenv init -)"
 swiftenv install || true
 
 # Build Kitura
-swift package clean
+#swift package clean
 swift build -c release
 
 # Execute Kitura (reads DBHOST and DBPORT environment variables)
