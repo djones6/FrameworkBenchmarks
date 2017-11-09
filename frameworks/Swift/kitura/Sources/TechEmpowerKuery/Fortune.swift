@@ -1,7 +1,7 @@
 struct Fortune {
 
   let id: Int
-  internal(set) var message: String
+  let message: String
 
   public init(id: Int, message: String) {
     self.id = id

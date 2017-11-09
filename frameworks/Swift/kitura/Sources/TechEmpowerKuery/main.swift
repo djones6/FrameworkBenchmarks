@@ -20,12 +20,31 @@ import HeliumLogger
 import SwiftKuery
 import SwiftKueryPostgreSQL
 import KituraStencil
+import Stencil
 //import KituraMustache
 
 Log.logger = HeliumLogger(.info)
 
+// Stencil stuff
+let ext = Extension()
+
+// Stencil does not yet support automatic HTML escaping:
+// https://github.com/kylef/Stencil/pull/80
+//
+ext.registerFilter("htmlencode") { (value: Any?) in
+    if let value = value as? String {
+        return value
+            .replacingOccurrences(of: "&", with: "&amp;")
+            .replacingOccurrences(of: "<", with: "&lt;")
+            .replacingOccurrences(of: ">", with: "&gt;")
+            .replacingOccurrences(of: "'", with: "&apos;")
+            .replacingOccurrences(of: "\"", with: "&quot;")
+    }
+    return value
+}
+
 let router = Router()
-router.add(templateEngine: StencilTemplateEngine())
+router.add(templateEngine: StencilTemplateEngine(extension: ext))
 //router.add(templateEngine: MustacheTemplateEngine())
 
 //
@@ -115,10 +134,11 @@ router.get("/fortunes") {
         return
     }
     fortunes.append(Fortune(id: 0, message: "Additional fortune added at request time."))
-    fortunes = fortunes.map { (fortune: Fortune) -> Fortune in
-        return fortune.htmlEncode()
-    }
+do {
     try response.render("fortunes.stencil", context: ["fortunes": fortunes.sorted()]).end()
+} catch {
+print("Error: \(error)")
+}
     //try response.render("fortunes.mustache", context: ["fortunes": fortunes.sorted()]).end()
 }
 
