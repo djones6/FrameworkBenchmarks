@@ -19,10 +19,14 @@ import LoggerAPI
 import HeliumLogger
 import SwiftKuery
 import SwiftKueryPostgreSQL
+import KituraStencil
+//import KituraMustache
 
-//Log.logger = HeliumLogger(.info)
+Log.logger = HeliumLogger(.info)
 
 let router = Router()
+router.add(templateEngine: StencilTemplateEngine())
+//router.add(templateEngine: MustacheTemplateEngine())
 
 //
 // TechEmpower test 6: plaintext
@@ -98,7 +102,24 @@ router.get("/queries") {
 router.get("/fortunes") {
     request, response, next in
     response.headers["Server"] = "Kitura"
-    try response.status(.badRequest).send("Not yet implemented").end()
+    response.headers["Content-Type"] = "text/html; charset=UTF-8"
+    let result = getFortunes()
+    guard var fortunes = result.0 else {
+        guard let err = result.1 else {
+            Log.error("Unknown Error")
+            try response.status(.badRequest).send("Unknown error").end()
+            return
+        }
+        Log.error("\(err)")
+        try response.status(.badRequest).send("Error: \(err)").end()
+        return
+    }
+    fortunes.append(Fortune(id: 0, message: "Additional fortune added at request time."))
+    fortunes = fortunes.map { (fortune: Fortune) -> Fortune in
+        return fortune.htmlEncode()
+    }
+    try response.render("fortunes.stencil", context: ["fortunes": fortunes.sorted()]).end()
+    //try response.render("fortunes.mustache", context: ["fortunes": fortunes.sorted()]).end()
 }
 
 //
@@ -139,77 +160,6 @@ router.get("/updates") {
     try response.status(.OK).send(json: results).end()
 }
 
-// Create table
-router.get("/create") {
-    request, response, next in
-    let dbConn = dbConnPool.getConnection()!
-    let query = "CREATE TABLE World ("
-        + "id integer NOT NULL,"
-        + "randomNumber integer NOT NULL default 0,"
-        + "PRIMARY KEY  (id)"
-        + ");"
-    
-    var dbResult : QueryResult!
-    dbConn.execute(query) { result in
-        dbResult = result
-    }
-    if dbResult.asResultSet != nil {
-        guard dbResult.success else {
-            try response.status(.badRequest).send("<pre>Error: query '\(query)' - error \(String(describing: dbResult.asError))</pre>").end()
-            return
-        }
-    }
-    releaseConnection(connection: dbConn)
-    response.send("<h3>Table 'World' created</h3>")
-    next()
-}
-
-// Delete table
-router.get("/delete") {
-    request, response, next in
-    let dbConn = dbConnPool.getConnection()!
-    let query = "DROP TABLE IF EXISTS World"
-    
-    var dbResult : QueryResult!
-    dbConn.execute(query) { result in
-        dbResult = result
-    }
-    if dbResult.asResultSet != nil {
-        guard dbResult.success else {
-            try response.status(.badRequest).send("<pre>Error: query '\(query)' - error \(String(describing: dbResult.asError))</pre>").end()
-            return
-        }
-    }
-    releaseConnection(connection: dbConn)
-    response.send("<h3>Table 'World' deleted</h3>")
-    next()
-}
-
-// Populate DB with 10k rows
-router.get("/populate") {
-    request, response, next in
-    let dbConn = dbConnPool.getConnection()!
-    response.status(.OK).send("<h3>Populating World table with \(dbRows) rows</h3><pre>")
-    for i in 1...dbRows {
-        let rnd = randomNumberGenerator(maxValue)
-        let query = Insert(into: world, values: i, rnd)
-        var dbResult : QueryResult!
-        dbConn.execute(query: query) { result in
-            dbResult = result
-        }
-        
-        if dbResult.asResultSet != nil {
-            guard dbResult.success else {
-                try response.status(.badRequest).send("<pre>Error: query '\(query)' - error \(String(describing: dbResult.asError))</pre>").end()
-                return
-            }
-        }
-        response.send(".")
-    }
-    releaseConnection(connection: dbConn)
-    response.send("</pre><p>Done.</p>")
-    next()
-}
 
 Kitura.addHTTPServer(onPort: 8080, with: router)
 Kitura.run()

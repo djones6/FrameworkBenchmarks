@@ -42,7 +42,15 @@ class World: Table {
     let randomNumber = Column("randomNumber")
 }
 
+class Fortunes: Table {
+    let tableName = "Fortune"
+
+    let id = Column("id")
+    let message = Column("message")
+}
+
 let world = World()
+let fortunes = Fortunes()
 
 var update = Update(world, set: [(world.randomNumber, randomNumberGenerator(maxValue))])
     .where(world.id == randomNumberGenerator(dbRows))
@@ -79,6 +87,39 @@ func randomNumberGenerator(_ maxVal: Int) -> Int {
     #else
         return Int(arc4random_uniform(UInt32(maxVal))) + 1
     #endif
+}
+
+func getFortunes() -> ([Fortune]?, AppError?) {
+    //let fortunes = [Fortune(id: 1, message: "Hello"), Fortune(id: 2, message: "World"), Fortune(id: 3, message: "Apple"), Fortune(id: 4, message:"Aardvark")]
+    var resultFortunes: [Fortune]? = nil
+    var errRes: AppError? = nil
+    
+    // Get a dedicated connection object for this transaction from the pool
+    guard let dbConn = dbConnPool.getConnection() else {
+        errRes = AppError.OtherError("Timed out waiting for a DB connection from the pool")
+        return (nil, errRes)
+    }
+    // Ensure that when we complete, the connection is returned to the pool
+    defer {
+        releaseConnection(connection: dbConn)
+    }
+    
+    let query = Select(from: fortunes)
+
+    dbConn.execute(query: query) { result in
+        guard let rows = result.asRows, result.success else {
+            errRes = AppError.DBKueryError("Query failed - status \(String(describing: result.asError))")
+            return
+        }
+
+        do {
+            resultFortunes = try rows.map { try Fortune.init(row: $0) }
+        } catch {
+            errRes = AppError.DataFormatError("\(error)")
+        }
+    }
+
+    return (resultFortunes, errRes)
 }
 
 // Get a random row (range 1 to 10,000) from DB: id(int),randomNumber(int)
