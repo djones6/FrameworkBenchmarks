@@ -6,20 +6,23 @@ import PackageDescription
 let package = Package(
     name: "Kitura-TechEmpower",
     dependencies: [
-//        .package(url: "https://github.com/IBM-Swift/CEpoll.git", .branch("pipeline")),
-//        .package(url: "https://github.com/IBM-Swift/Kitura-net.git", .branch("pipeline2")),
-        .package(url: "https://github.com/IBM-Swift/Kitura.git", from: "2.0.0"),
+        .package(url: "https://github.com/IBM-Swift/Kitura.git", .upToNextMinor(from: "2.1.0")),
         .package(url: "https://github.com/IBM-Swift/HeliumLogger.git", from: "1.7.0"),
-        .package(url: "https://github.com/IBM-Swift/Swift-Kuery-PostgreSQL", from: "0.0.0"),
+        .package(url: "https://github.com/IBM-Swift/Configuration.git", from: "3.0.0"),
+        .package(url: "https://github.com/IBM-Swift/Swift-Kuery-PostgreSQL", from: "1.0.0"),
         .package(url: "https://github.com/IBM-Swift/Kitura-StencilTemplateEngine.git", from: "1.8.0"),
         .package(url: "https://github.com/IBM-Swift/Kitura-MustacheTemplateEngine.git", from: "1.7.0"),
+        .package(url: "https://github.com/OpenKitten/MongoKitten.git", from: "4.0.0"),
     ],
     targets: [
         .target(
             name: "TechEmpowerKuery",
-            dependencies: ["Kitura", "HeliumLogger", "SwiftKueryPostgreSQL", "KituraStencil"]),
+            dependencies: ["Kitura", "HeliumLogger", "Configuration", "SwiftKueryPostgreSQL", "KituraStencil"]),
         .target(
             name: "TechEmpowerKueryMustache",
-            dependencies: ["Kitura", "HeliumLogger", "SwiftKueryPostgreSQL", "KituraMustache"]),
+            dependencies: ["Kitura", "HeliumLogger", "Configuration", "SwiftKueryPostgreSQL", "KituraMustache"]),
+        .target(
+            name: "TechEmpowerMongoKitten",
+            dependencies: ["Kitura", "HeliumLogger", "Configuration", "MongoKitten", "KituraStencil"]),
     ]
 )

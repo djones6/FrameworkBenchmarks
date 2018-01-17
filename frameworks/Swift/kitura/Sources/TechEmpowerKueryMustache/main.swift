@@ -95,7 +95,7 @@ router.get("/queries") {
 }
 
 //
-// TechEmpower test 4: fortunes (TODO)
+// TechEmpower test 4: fortunes (raw, no ORM)
 //
 router.get("/fortunes") {
     request, response, next in

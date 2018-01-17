@@ -18,6 +18,7 @@ import Foundation
 import LoggerAPI
 import SwiftKuery
 import SwiftKueryPostgreSQL
+import Configuration
 
 #if os(Linux)
     import Glibc
@@ -25,12 +26,16 @@ import SwiftKueryPostgreSQL
     import Darwin
 #endif
 
+// We will load our database configuration from config.json, but this can be
+// overridden with the TFB_DB_CONFIG environment variable.
+let configurationFilename: String = ProcessInfo.processInfo.environment["TFB_DB_CONFIG"] ?? "config.json"
+let manager = ConfigurationManager().load(file: configurationFilename, relativeFrom: .pwd).load(.environmentVariables)
 
-let dbHost = ProcessInfo.processInfo.environment["DB_HOST"] ?? "localhost"
-let dbPort = Int32(ProcessInfo.processInfo.environment["DB_PORT"] ?? "5432") ?? 5432
-let dbName = "hello_world"
-let dbUser = "benchmarkdbuser"
-let dbPass = "benchmarkdbpass"
+let dbHost = manager["DB_HOST"] as? String ?? manager["db:host"] as? String ?? "localhost"
+let dbPort = Int32(manager["DB_PORT"] as? String != nil ? Int(manager["DB_PORT"] as! String) ?? 5432 : manager["db:port"] as? Int ?? 5432)
+let dbName = manager["db:name"] as? String ?? "hello_world"
+let dbUser = manager["db:user"] as? String ?? "benchmarkdbuser"
+let dbPass = manager["db:password"] as? String ?? "benchmarkdbpass"
 
 let dbRows = 10000
 let maxValue = 10000
@@ -90,7 +95,6 @@ func randomNumberGenerator(_ maxVal: Int) -> Int {
 }
 
 func getFortunes() -> ([Fortune]?, AppError?) {
-    //let fortunes = [Fortune(id: 1, message: "Hello"), Fortune(id: 2, message: "World"), Fortune(id: 3, message: "Apple"), Fortune(id: 4, message:"Aardvark")]
     var resultFortunes: [Fortune]? = nil
     var errRes: AppError? = nil
     
@@ -111,7 +115,6 @@ func getFortunes() -> ([Fortune]?, AppError?) {
             errRes = AppError.DBKueryError("Query failed - status \(String(describing: result.asError))")
             return
         }
-
         do {
             resultFortunes = try rows.map { try Fortune.init(row: $0) }
         } catch {

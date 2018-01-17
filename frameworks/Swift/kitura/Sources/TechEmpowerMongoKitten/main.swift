@@ -17,10 +17,10 @@
 import Kitura
 import LoggerAPI
 import HeliumLogger
-import SwiftKuery
-import SwiftKueryPostgreSQL
+import MongoKitten
 import KituraStencil
 import Stencil
+//import KituraMustache
 
 Log.logger = HeliumLogger(.info)
 
@@ -44,6 +44,7 @@ ext.registerFilter("htmlencode") { (value: Any?) in
 
 let router = Router()
 router.add(templateEngine: StencilTemplateEngine(extension: ext))
+//router.add(templateEngine: MustacheTemplateEngine())
 
 //
 // TechEmpower test 6: plaintext
@@ -71,17 +72,7 @@ router.get("/json") {
 router.get("/db") {
     request, response, next in
     response.headers["Server"] = "Kitura"
-    let result = getRandomRow()
-    guard let dict = result.0 else {
-        guard let err = result.1 else {
-            Log.error("Unknown Error")
-            try response.status(.badRequest).send("Unknown error").end()
-            return
-        }
-        Log.error("\(err)")
-        try response.status(.badRequest).send("Error: \(err)").end()
-        return
-    }
+    let dict = try getRandomRow()
     try response.status(.OK).send(json: dict).end()
 }
 
@@ -96,17 +87,7 @@ router.get("/queries") {
     let numQueries = max(1, min(Int(queriesParam) ?? 1, 500))      // Snap to range of 1-500 as per test spec
     var results: [[String:Int]] = []
     for _ in 1...numQueries {
-        let result = getRandomRow()
-        guard let dict = result.0 else {
-            guard let err = result.1 else {
-                Log.error("Unknown Error")
-                try response.status(.badRequest).send("Unknown error").end()
-                return
-            }
-            Log.error("\(err)")
-            try response.status(.badRequest).send("Error: \(err)").end()
-            return
-        }
+        let dict = try getRandomRow()
         results.append(dict)
     }
     // Return JSON representation of array of results
@@ -120,23 +101,11 @@ router.get("/fortunes") {
     request, response, next in
     response.headers["Server"] = "Kitura"
     response.headers["Content-Type"] = "text/html; charset=UTF-8"
-    let result = getFortunes()
-    guard var fortunes = result.0 else {
-        guard let err = result.1 else {
-            Log.error("Unknown Error")
-            try response.status(.badRequest).send("Unknown error").end()
-            return
-        }
-        Log.error("\(err)")
-        try response.status(.badRequest).send("Error: \(err)").end()
-        return
-    }
+    var fortunes = try getFortunes()
     fortunes.append(Fortune(id: 0, message: "Additional fortune added at request time."))
-    do {
-      try response.render("fortunes.stencil", context: ["fortunes": fortunes.sorted()]).end()
-    } catch {
-      print("Error: \(error)")
-    }
+
+    try response.render("fortunes.stencil", context: ["fortunes": fortunes.sorted()]).end()
+    //try response.render("fortunes.mustache", context: ["fortunes": fortunes.sorted()]).end()
 }
 
 //
@@ -149,27 +118,7 @@ router.get("/updates") {
     let numQueries = max(1, min(Int(queriesParam) ?? 1, 500))      // Snap to range of 1-500 as per test spec
     var results: [[String:Int]] = []
     for _ in 1...numQueries {
-        let result = getRandomRow()
-        guard let dict = result.0 else {
-            guard let err = result.1 else {
-                Log.error("Unknown Error")
-                try response.status(.badRequest).send("Unknown error").end()
-                return
-            }
-            Log.error("\(err)")
-            try response.status(.badRequest).send("Error: \(err)").end()
-            return
-        }
-        do {
-            var error: AppError?
-            try error = updateRow(id: dict["id"]!)
-            if let appError = error {
-                throw appError
-            }
-        } catch let err as AppError {
-            try response.status(.badRequest).send("Error: \(err)").end()
-            return
-        }
+        let dict = try updateRandomRow()
         results.append(dict)
     }
     
@@ -177,6 +126,12 @@ router.get("/updates") {
     try response.status(.OK).send(json: results).end()
 }
 
+// Initialize MongoDB connection
+do {
+    try connectToDB()
+} catch {
+    print("Error connecting to database: \(error)")
+}
 
 Kitura.addHTTPServer(onPort: 8080, with: router)
 Kitura.run()
