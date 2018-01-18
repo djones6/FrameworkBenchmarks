@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Dependency on PostgreSQL database
-fw_depends postgresql swift4
+# Dependency on MongoDB database
+fw_depends mongodb swift4
 
 # Build Kitura
 #swift package clean
