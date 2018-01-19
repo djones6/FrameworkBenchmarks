@@ -42,8 +42,8 @@
         "repositoryURL": "https://github.com/IBM-Swift/Kitura-net.git",
         "state": {
           "branch": null,
-          "revision": "c29812e62855d34d32305e1dc06d2f1df5224df7",
-          "version": "1.7.19"
+          "revision": "d781655dcee403504e4f1eeaf3f62b12d78d8230",
+          "version": "2.0.1"
         }
       },
       {
@@ -78,8 +78,8 @@
         "repositoryURL": "https://github.com/IBM-Swift/BlueSocket.git",
         "state": {
           "branch": null,
-          "revision": "00b126a2c19520bbf51cd26e8c0cc41dacbc5a05",
-          "version": "0.12.76"
+          "revision": "15ad09461f19a993fe5efb0e42b323adafc3533d",
+          "version": "0.12.83"
         }
       },
       {
@@ -87,8 +87,8 @@
         "repositoryURL": "https://github.com/IBM-Swift/BlueSSLService.git",
         "state": {
           "branch": null,
-          "revision": "7adf7cacc447d447df5dcc3058cabd402177c5aa",
-          "version": "0.12.64"
+          "revision": "18ed96d20615d3de25874ab141bde55c0e5bc3ec",
+          "version": "0.12.73"
         }
       },
       {
@@ -96,8 +96,8 @@
         "repositoryURL": "https://github.com/IBM-Swift/Swift-Kuery.git",
         "state": {
           "branch": null,
-          "revision": "909f75f4417609fe11934be1eabf0eb9244d08f4",
-          "version": "0.13.3"
+          "revision": "fc4bbd00a98334bb8b916a43299e38ae8437356a",
+          "version": "1.0.2"
         }
       },
       {
@@ -105,8 +105,8 @@
         "repositoryURL": "https://github.com/IBM-Swift/Swift-Kuery-PostgreSQL",
         "state": {
           "branch": null,
-          "revision": "348e0894c246667e541920816027c7289aa7df3a",
-          "version": "0.12.3"
+          "revision": "e1d69d589822a21268fcf93816bcd21971678bad",
+          "version": "1.0.3"
         }
       }
     ]
